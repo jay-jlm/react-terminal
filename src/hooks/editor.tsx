@@ -76,65 +76,24 @@ export const useBufferedContent = (
         return;
       }
 
-      const processCommand = async (text: string) => {
+      const processCommand = (text: string) => {
 
-        const [command, ...rest] = text.trim().split(" ");
-        let output = "";
-
-        if(command === "clear") {
+        if(text === "clear") {
           setBufferedContent("");
           setCurrentText("");
           setProcessCurrentLine(false);
           return 
         }
 
-        const waiting = (
-          <>
-            {bufferedContent}
-            <span className={style.prompt}>{prompt}</span>
-            <span className={`${style.lineText} ${style.preWhiteSpace}`}>{currentText}</span>
-            <br />
-          </>
-        );
-        setBufferedContent(waiting);
-        setCurrentText("");
-
         
-        if (text) {
-          const commandArguments = rest.join(" ");
-
-          if (command && commands[command]) {
-            const executor = commands[command];
-
-            if (typeof executor === "function") {
-              output = await executor(commandArguments);
-            } else {
-              output = executor;
-            }
-          } else if (typeof errorMessage === "function") {
-            output = await errorMessage(commandArguments);
-          } else {
-            output = errorMessage;
-          }
+        if (text && text.length) {
+            commands.onInput(text);
         }
 
-        const nextBufferedContent = (
-          <>
-            {bufferedContent}
-            <span className={style.prompt}>{prompt}</span>
-            <span className={`${style.lineText} ${style.preWhiteSpace}`}>{currentText}</span>
-            {output ? (
-              <span>
-                <br />
-                {output}
-              </span>
-            ) : null}
-            <br />
-          </>
-        );
-
-        setBufferedContent(nextBufferedContent);
+        setBufferedContent("");
+        setCurrentText("");
         setProcessCurrentLine(false);
+        return 
       };
 
       processCommand(currentText);
